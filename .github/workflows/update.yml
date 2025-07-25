@@ -1,0 +1,203 @@
+name: Update ProeaseHup website
+
+on:
+  push:
+    branches:
+  schedule:
+    - cron: '0 */8 * * *'  # Runs every 8 hours
+  workflow_dispatch:
+
+jobs:
+  update-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Clean Repository
+        run: |
+          echo "Cleaning existing files..."
+          # Remove all files in root except specified ones
+          find . -maxdepth 1 -type f -not -name ".gitignore" -not -name "README.md" -not -name ".git" -not -name ".github" -not -name ".firebaserc" -not -name "firebase.json" -not -name "package-lock.json" -not -name "package.json" -exec rm -rf {} +
+          # Remove all directories in root except specified ones
+          find . -maxdepth 1 -type d -not -name "." -not -name ".git" -not -name ".github" -not -name "firebase-deploy" -not -name "node_modules" -exec rm -rf {} +
+          git add .
+          git commit -m "Cleaned repository before cloning" || echo "No changes to commit"
+
+      - name: Install wget
+        run: sudo apt-get update && sudo apt-get install -y wget
+
+      - name: Clone English Framer Site (Root)
+        run: |
+          echo "Cloning English site..."
+          wget \
+            --recursive \
+            --page-requisites \
+            --html-extension \
+            --convert-links \
+            --domains=appreciative-embeds-825220.framer.app \
+            --no-parent \
+            --directory-prefix=./ \
+            https://appreciative-embeds-825220.framer.app/
+          # Move files to root and clean up
+          mv appreciative-embeds-825220.framer.app/* ./
+          rm -rf appreciative-embeds-825220.framer.app
+
+      - name: Clone Arabic Framer Site (/ar)
+        run: |
+          echo "Cloning Arabic site..."
+          rm -rf ./ar  # Remove existing ar/ directory to avoid mv conflicts
+          mkdir -p ./ar
+          wget \
+            --recursive \
+            --page-requisites \
+            --html-extension \
+            --convert-links \
+            --domains=appreciative-embeds-825220.framer.app \
+            --no-parent \
+            --directory-prefix=./ar \
+            https://appreciative-embeds-825220.framer.app/ar/
+          # Move files to /ar and clean up
+          mv ar/appreciative-embeds-825220.framer.app/ar/* ar/
+          rm -rf ar/appreciative-embeds-825220.framer.app
+
+      - name: Post-Process HTML for English (Root)
+        run: |
+          find . -type f -name "*.html" -not -path "./ar/*" | while read -r file; do
+            if [ "$file" = "./index.html" ]; then
+              canonical_url="https://iaboelsoud.com/"
+            else
+              relative_path=$(echo "$file" | sed 's/^\.\///')
+              canonical_url="https://iaboelsoud.com/$relative_path"
+            fi
+            sed -i \
+              -e 's/<html>/<html dir="ltr" lang="en"/' \
+              -e '/<head>/a <meta name="robots" content="index, follow" />' \
+              -e "/<head>/a <link rel=\"canonical\" href=\"$canonical_url\" />" \
+              -e '/<head>/a <link rel="alternate" hreflang="en" href="https://iaboelsoud.com/'"$relative_path"'" />' \
+              -e '/<head>/a <link rel="alternate" hreflang="ar" href="https://iaboelsoud.com/ar/'"$relative_path"'" />' \
+              -e '/<head>/a <link rel="alternate" hreflang="x-default" href="https://iaboelsoud.com/" />' \
+              -e '/<head>/a <script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"Ibrahim Aboelsoud","description":"Ibrahim Aboelsoud is a full-stack developer providing web development and IT solutions.","url":"https://iaboelsoud.com/","sameAs":["https://iaboelsoud.com/services.html","https://iaboelsoud.com/projects.html","https://iaboelsoud.com/contact.html"]}<\/script>' \
+              "$file"
+          done
+
+      - name: Post-Process HTML for Arabic (/ar)
+        run: |
+          find ./ar -type f -name "*.html" | while read -r file; do
+            if [ "$file" = "./ar/index.html" ]; then
+              canonical_url="https://iaboelsoud.com/ar/"
+            else
+              relative_path=$(echo "$file" | sed 's/^\.\//ar\//')
+              canonical_url="https://iaboelsoud.com/$relative_path"
+            fi
+            sed -i \
+              -e 's/<html>/<html dir="rtl" lang="ar"/' \
+              -e '/<head>/a <meta name="robots" content="index, follow" />' \
+              -e "/<head>/a <link rel=\"canonical\" href=\"$canonical_url\" />" \
+              -e '/<head>/a <link rel="alternate" hreflang="en" href="https://iaboelsoud.com/'"$(echo "$relative_path" | sed 's/^ar\///')"'" />' \
+              -e '/<head>/a <link rel="alternate" hreflang="ar" href="https://iaboelsoud.com/'"$relative_path"'" />' \
+              -e '/<head>/a <link rel="alternate" hreflang="x-default" href="https://iaboelsoud.com/" />' \
+              -e '/<head>/a <script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"Ibrahim Aboelsoud","description":"أحمد الشريف مطور ويب شامل يقدم حلول تطوير الويب والتكنولوجيا.","url":"https://iaboelsoud.com/","sameAs":["https://iaboelsoud.com/services.html","https://iaboelsoud.com/projects.html","https://iaboelsoud.com/contact.html"]}<\/script>' \
+              "$file"
+          done
+
+      - name: Add 404 Fallback for Backlinks
+        run: |
+          cat << 'EOF' > 404.html
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+            <title>404 - Page Not Found</title>
+            <script>
+              (function() {
+                var path = window.location.pathname;
+                if (!path.endsWith('.html') && !path.includes('.')) {
+                  window.location.replace(path.replace(/\/$/, '') + '.html');
+                }
+              })();
+            </script>
+          </head>
+          <body>
+            <p>Redirecting...</p>
+          </body>
+          </html>
+          EOF
+
+      - name: Generate Sitemaps, Robots, and RSS
+        run: |
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > sitemap.xml
+          echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> sitemap.xml
+          find . -type f -name "*.html" -not -path "./ar/*" | while read -r file; do
+            url="https://iaboelsoud.com/${file#./}"
+            lastmod=$(date -u -d "now" +%Y-%m-%dT%H:%M:%SZ)
+            priority=$(if [[ "$file" == "./index.html" ]]; then echo "1.0"; else echo "0.8"; fi)
+            echo "  <url><loc>$url</loc><lastmod>$lastmod</lastmod><changefreq>daily</changefreq><priority>$priority</priority></url>" >> sitemap.xml
+          done
+          echo '</urlset>' >> sitemap.xml
+
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > ar/sitemap.xml
+          echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> ar/sitemap.xml
+          find ./ar -type f -name "*.html" | while read -r file; do
+            url="https://iaboelsoud.com/${file#./}"
+            lastmod=$(date -u -d "now" +%Y-%m-%dT%H:%M:%SZ)
+            priority=$(if [[ "$file" == "./ar/index.html" ]]; then echo "1.0"; else echo "0.8"; fi)
+            echo "  <url><loc>$url</loc><lastmod>$lastmod</lastmod><changefreq>daily</changefreq><priority>$priority</priority></url>" >> ar/sitemap.xml
+          done
+          echo '</urlset>' >> ar/sitemap.xml
+
+          echo "User-agent: *" > robots.txt
+          echo "Allow: /" >> robots.txt
+          echo "Allow: /ar/" >> robots.txt
+          echo "Disallow: /*?*" >> robots.txt
+          echo "Sitemap: https://iaboelsoud.com/sitemap.xml" >> robots.txt
+          echo "Sitemap: https://iaboelsoud.com/ar/sitemap.xml" >> robots.txt
+          if [ -f robots.txt ]; then
+            echo "robots.txt generated:"
+            cat robots.txt
+          else
+            echo "Failed to generate robots.txt" >&2
+            exit 1
+          fi
+
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > rss.xml
+          echo '<rss version="2.0"><channel>' >> rss.xml
+          echo "<title>Maintain Ibrahim Aboelsoud Site</title><link>https://iaboelsoud.com</link><description>Automated updates for Ibrahim Aboelsoud site maintenance</description>" >> rss.xml
+          find . -type f -name "*.html" -not -path "./ar/*" | while read -r file; do
+            url="https://iaboelsoud.com/${file#./}"
+            echo "<item><title>English Page Update: ${file#./}</title><link>$url</link><pubDate>$(date -u -R)</pubDate><description>Updated English page at ${file#./}</description></item>" >> rss.xml
+          done
+          find ./ar -type f -name "*.html" | while read -r file; do
+            url="https://iaboelsoud.com/${file#./}"
+            echo "<item><title>Arabic Page Update: ${file#./}</title><link>$url</link><pubDate>$(date -u -R)</pubDate><description>Updated Arabic page at ${file#./}</description></item>" >> rss.xml
+          done
+          echo '</channel></rss>' >> rss.xml
+
+      - name: Validate Cloning
+        run: |
+          if [ ! -f "index.html" ] || [ ! -f "ar/index.html" ]; then
+            echo "Error: Core files (index.html or ar/index.html) missing!"
+            exit 1
+          fi
+          if find . -name "*.html" | xargs -n 1 grep -l 'href="/[^"]*[^.html]"' | grep -q .; then
+            echo "Error: Found internal links without .html!"
+            exit 1
+          fi
+          echo "Cloning validated successfully."
+
+      - name: Commit and Push Changes
+        env:
+          ACTIONS_PAT: ${{ secrets.ACTIONS_PAT }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add .
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Automated update: Cloned Ibrahim Aboelsoud site with wget"
+            git push https://x-access-token:${{ secrets.ACTIONS_PAT }}@github.com/${{ github.repository }}.git HEAD:main
+          fi
