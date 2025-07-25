@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Allow: /ar/
+Disallow: /*?*
+Sitemap: https://proeasehup.com/sitemap.xml
+Sitemap: https://proeasehup.com/ar/sitemap.xml
