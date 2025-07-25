@@ -8,6 +8,10 @@ on:
     - cron: '0 */8 * * *'  # Runs every 8 hours
   workflow_dispatch:
 
+
+permissions:
+  contents: write
+
 jobs:
   update-and-deploy:
     runs-on: ubuntu-latest
