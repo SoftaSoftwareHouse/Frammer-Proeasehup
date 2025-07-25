@@ -81,7 +81,7 @@ jobs:
               -e '/<head>/a <link rel="alternate" hreflang="en" href="https://proeasehup.com/'"$relative_path"'" />' \
               -e '/<head>/a <link rel="alternate" hreflang="ar" href="https://proeasehup.com/ar/'"$relative_path"'" />' \
               -e '/<head>/a <link rel="alternate" hreflang="x-default" href="https://proeasehup.com/" />' \
-              -e '/<head>/a <script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"ProEase Hup","description":"ProEase hup is one of a kind-not merely another of the numerous CRM tools on the market that are just handed-down versions of the flagship edition. Like your small business, simplicity is at ProEase core and apparent in its every aspect its plans, features, and pricing. And it takes only 30 minutes to set up and start selling!.","url":"https://https://proeasehup.com//","sameAs":["https://proeasehup.com/login.html","https://proeasehup.com/terms.html","https://proeasehup.com/policy.html"]}<\/script>' \
+              -e '/<head>/a <script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"ProEase Hup","description":"ProEase hup is one of a kind-not merely another of the numerous CRM tools on the market that are just handed-down versions of the flagship edition. Like your small business, simplicity is at ProEase core and apparent in its every aspect its plans, features, and pricing. And it takes only 30 minutes to set up and start selling!.","url":"https://https://proeasehup.com//","sameAs":["https://proeasehup.com/login.html","https://proeasehup.com/terms.html","https://proeasehup.com/404.html","https://proeasehup.com/policy.html"]}<\/script>' \
               "$file"
           done
 
@@ -101,7 +101,7 @@ jobs:
               -e '/<head>/a <link rel="alternate" hreflang="en" href="https://proeasehup.com/'"$(echo "$relative_path" | sed 's/^ar\///')"'" />' \
               -e '/<head>/a <link rel="alternate" hreflang="ar" href="https://proeasehup.com/'"$relative_path"'" />' \
               -e '/<head>/a <link rel="alternate" hreflang="x-default" href="https://proeasehup.com/" />' \
-              -e '/<head>/a <script type="application/ld+json">{"@context":"https://schema.org","@type":"Company","name":"ProEase Hup","description":"ProEase hup is one of a kind-not merely another of the numerous CRM tools on the market that are just handed-down versions of the flagship edition. Like your small business, simplicity is at ProEase core and apparent in its every aspect its plans, features, and pricing. And it takes only 30 minutes to set up and start selling!.","url":"https://https://proeasehup.com//","sameAs":["https://proeasehup.com/login.html","https://proeasehup.com/terms.html","https://proeasehup.com/policy.html"]}<\/script>' \
+              -e '/<head>/a <script type="application/ld+json">{"@context":"https://schema.org","@type":"Company","name":"ProEase Hup","description":"ProEase hup is one of a kind-not merely another of the numerous CRM tools on the market that are just handed-down versions of the flagship edition. Like your small business, simplicity is at ProEase core and apparent in its every aspect its plans, features, and pricing. And it takes only 30 minutes to set up and start selling!.","url":"https://https://proeasehup.com//","sameAs":["https://proeasehup.com/login.html","https://proeasehup.com/terms.html","https://proeasehup.com/404.html","https://proeasehup.com/policy.html"]}<\/script>' \
               "$file"
           done
 
