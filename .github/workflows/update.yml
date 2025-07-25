@@ -39,13 +39,13 @@ jobs:
             --page-requisites \
             --html-extension \
             --convert-links \
-            --domains=appreciative-embeds-825220.framer.app \
+            --domains=proeasehup.framer.website \
             --no-parent \
             --directory-prefix=./ \
-            https://appreciative-embeds-825220.framer.app/
+            https://proeasehup.framer.website/
           # Move files to root and clean up
-          mv appreciative-embeds-825220.framer.app/* ./
-          rm -rf appreciative-embeds-825220.framer.app
+          mv proeasehup.framer.website/* ./
+          rm -rf proeasehup.framer.website
 
       - name: Clone Arabic Framer Site (/ar)
         run: |
@@ -57,31 +57,31 @@ jobs:
             --page-requisites \
             --html-extension \
             --convert-links \
-            --domains=appreciative-embeds-825220.framer.app \
+            --domains=proeasehup.framer.website \
             --no-parent \
             --directory-prefix=./ar \
-            https://appreciative-embeds-825220.framer.app/ar/
+            https://proeasehup.framer.website/ar/
           # Move files to /ar and clean up
-          mv ar/appreciative-embeds-825220.framer.app/ar/* ar/
-          rm -rf ar/appreciative-embeds-825220.framer.app
+          mv ar/proeasehup.framer.website/ar/* ar/
+          rm -rf ar/proeasehup.framer.website
 
       - name: Post-Process HTML for English (Root)
         run: |
           find . -type f -name "*.html" -not -path "./ar/*" | while read -r file; do
             if [ "$file" = "./index.html" ]; then
-              canonical_url="https://iaboelsoud.com/"
+              canonical_url="https://proeasehup.com/"
             else
               relative_path=$(echo "$file" | sed 's/^\.\///')
-              canonical_url="https://iaboelsoud.com/$relative_path"
+              canonical_url="https://proeasehup.com/$relative_path"
             fi
             sed -i \
               -e 's/<html>/<html dir="ltr" lang="en"/' \
               -e '/<head>/a <meta name="robots" content="index, follow" />' \
               -e "/<head>/a <link rel=\"canonical\" href=\"$canonical_url\" />" \
-              -e '/<head>/a <link rel="alternate" hreflang="en" href="https://iaboelsoud.com/'"$relative_path"'" />' \
-              -e '/<head>/a <link rel="alternate" hreflang="ar" href="https://iaboelsoud.com/ar/'"$relative_path"'" />' \
-              -e '/<head>/a <link rel="alternate" hreflang="x-default" href="https://iaboelsoud.com/" />' \
-              -e '/<head>/a <script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"Ibrahim Aboelsoud","description":"Ibrahim Aboelsoud is a full-stack developer providing web development and IT solutions.","url":"https://iaboelsoud.com/","sameAs":["https://iaboelsoud.com/services.html","https://iaboelsoud.com/projects.html","https://iaboelsoud.com/contact.html"]}<\/script>' \
+              -e '/<head>/a <link rel="alternate" hreflang="en" href="https://proeasehup.com/'"$relative_path"'" />' \
+              -e '/<head>/a <link rel="alternate" hreflang="ar" href="https://proeasehup.com/ar/'"$relative_path"'" />' \
+              -e '/<head>/a <link rel="alternate" hreflang="x-default" href="https://proeasehup.com/" />' \
+              -e '/<head>/a <script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"ProEase Hup","description":"ProEase hup is one of a kind-not merely another of the numerous CRM tools on the market that are just handed-down versions of the flagship edition. Like your small business, simplicity is at ProEase core and apparent in its every aspect its plans, features, and pricing. And it takes only 30 minutes to set up and start selling!.","url":"https://https://proeasehup.com//","sameAs":["https://proeasehup.com/login.html","https://proeasehup.com/terms.html","https://proeasehup.com/policy.html"]}<\/script>' \
               "$file"
           done
 
@@ -89,19 +89,19 @@ jobs:
         run: |
           find ./ar -type f -name "*.html" | while read -r file; do
             if [ "$file" = "./ar/index.html" ]; then
-              canonical_url="https://iaboelsoud.com/ar/"
+              canonical_url="https://proeasehup.com/ar/"
             else
               relative_path=$(echo "$file" | sed 's/^\.\//ar\//')
-              canonical_url="https://iaboelsoud.com/$relative_path"
+              canonical_url="https://proeasehup.com/$relative_path"
             fi
             sed -i \
               -e 's/<html>/<html dir="rtl" lang="ar"/' \
               -e '/<head>/a <meta name="robots" content="index, follow" />' \
               -e "/<head>/a <link rel=\"canonical\" href=\"$canonical_url\" />" \
-              -e '/<head>/a <link rel="alternate" hreflang="en" href="https://iaboelsoud.com/'"$(echo "$relative_path" | sed 's/^ar\///')"'" />' \
-              -e '/<head>/a <link rel="alternate" hreflang="ar" href="https://iaboelsoud.com/'"$relative_path"'" />' \
-              -e '/<head>/a <link rel="alternate" hreflang="x-default" href="https://iaboelsoud.com/" />' \
-              -e '/<head>/a <script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"Ibrahim Aboelsoud","description":"أحمد الشريف مطور ويب شامل يقدم حلول تطوير الويب والتكنولوجيا.","url":"https://iaboelsoud.com/","sameAs":["https://iaboelsoud.com/services.html","https://iaboelsoud.com/projects.html","https://iaboelsoud.com/contact.html"]}<\/script>' \
+              -e '/<head>/a <link rel="alternate" hreflang="en" href="https://proeasehup.com/'"$(echo "$relative_path" | sed 's/^ar\///')"'" />' \
+              -e '/<head>/a <link rel="alternate" hreflang="ar" href="https://proeasehup.com/'"$relative_path"'" />' \
+              -e '/<head>/a <link rel="alternate" hreflang="x-default" href="https://proeasehup.com/" />' \
+              -e '/<head>/a <script type="application/ld+json">{"@context":"https://schema.org","@type":"Company","name":"ProEase Hup","description":"ProEase hup is one of a kind-not merely another of the numerous CRM tools on the market that are just handed-down versions of the flagship edition. Like your small business, simplicity is at ProEase core and apparent in its every aspect its plans, features, and pricing. And it takes only 30 minutes to set up and start selling!.","url":"https://https://proeasehup.com//","sameAs":["https://proeasehup.com/login.html","https://proeasehup.com/terms.html","https://proeasehup.com/policy.html"]}<\/script>' \
               "$file"
           done
 
@@ -133,7 +133,7 @@ jobs:
           echo '<?xml version="1.0" encoding="UTF-8"?>' > sitemap.xml
           echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> sitemap.xml
           find . -type f -name "*.html" -not -path "./ar/*" | while read -r file; do
-            url="https://iaboelsoud.com/${file#./}"
+            url="https://proeasehup.com/${file#./}"
             lastmod=$(date -u -d "now" +%Y-%m-%dT%H:%M:%SZ)
             priority=$(if [[ "$file" == "./index.html" ]]; then echo "1.0"; else echo "0.8"; fi)
             echo "  <url><loc>$url</loc><lastmod>$lastmod</lastmod><changefreq>daily</changefreq><priority>$priority</priority></url>" >> sitemap.xml
@@ -143,7 +143,7 @@ jobs:
           echo '<?xml version="1.0" encoding="UTF-8"?>' > ar/sitemap.xml
           echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> ar/sitemap.xml
           find ./ar -type f -name "*.html" | while read -r file; do
-            url="https://iaboelsoud.com/${file#./}"
+            url="https://proeasehup.com/${file#./}"
             lastmod=$(date -u -d "now" +%Y-%m-%dT%H:%M:%SZ)
             priority=$(if [[ "$file" == "./ar/index.html" ]]; then echo "1.0"; else echo "0.8"; fi)
             echo "  <url><loc>$url</loc><lastmod>$lastmod</lastmod><changefreq>daily</changefreq><priority>$priority</priority></url>" >> ar/sitemap.xml
@@ -154,8 +154,8 @@ jobs:
           echo "Allow: /" >> robots.txt
           echo "Allow: /ar/" >> robots.txt
           echo "Disallow: /*?*" >> robots.txt
-          echo "Sitemap: https://iaboelsoud.com/sitemap.xml" >> robots.txt
-          echo "Sitemap: https://iaboelsoud.com/ar/sitemap.xml" >> robots.txt
+          echo "Sitemap: https://proeasehup.com/sitemap.xml" >> robots.txt
+          echo "Sitemap: https://proeasehup.com/ar/sitemap.xml" >> robots.txt
           if [ -f robots.txt ]; then
             echo "robots.txt generated:"
             cat robots.txt
@@ -166,13 +166,13 @@ jobs:
 
           echo '<?xml version="1.0" encoding="UTF-8"?>' > rss.xml
           echo '<rss version="2.0"><channel>' >> rss.xml
-          echo "<title>Maintain Ibrahim Aboelsoud Site</title><link>https://iaboelsoud.com</link><description>Automated updates for Ibrahim Aboelsoud site maintenance</description>" >> rss.xml
+          echo "<title>Maintain ProEase Hup Site</title><link>https://proeasehup.com</link><description>Automated updates for ProEase Hupsite maintenance</description>" >> rss.xml
           find . -type f -name "*.html" -not -path "./ar/*" | while read -r file; do
-            url="https://iaboelsoud.com/${file#./}"
+            url="https://proeasehup.com/${file#./}"
             echo "<item><title>English Page Update: ${file#./}</title><link>$url</link><pubDate>$(date -u -R)</pubDate><description>Updated English page at ${file#./}</description></item>" >> rss.xml
           done
           find ./ar -type f -name "*.html" | while read -r file; do
-            url="https://iaboelsoud.com/${file#./}"
+            url="https://proeasehup.com/${file#./}"
             echo "<item><title>Arabic Page Update: ${file#./}</title><link>$url</link><pubDate>$(date -u -R)</pubDate><description>Updated Arabic page at ${file#./}</description></item>" >> rss.xml
           done
           echo '</channel></rss>' >> rss.xml
